@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Senin Kolyeni Keşfet</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+
+<style>
+/* ── Tokens ─────────────────────────────────── */
+:root {
+  --bg:      #0e0c0a;
+  --card:    #1e1a16;
+  --border:  #2e2820;
+  --gold:    #c9a84c;
+  --gold-d:  #8a6f32;
+  --text:    #e8e0d4;
+  --muted:   #7a6e62;
+  --white:   #f5f0ea;
+}
+
+/* ── Reset ───────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 60px;
+  overflow-x: hidden;
+}
+
+/* ── Header ──────────────────────────────────── */
+header {
+  width: 100%;
+  text-align: center;
+  padding: 48px 24px 28px;
+}
+header::after {
+  content: '';
+  display: block;
+  width: 36px; height: 1px;
+  background: var(--gold);
+  margin: 18px auto 0;
+  opacity: .45;
+}
+.logo-mark {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 10px;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: .65;
+  margin-bottom: 14px;
+}
+h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(26px, 8vw, 40px);
+  font-weight: 300;
+  line-height: 1.2;
+  color: var(--white);
+}
+h1 em { font-style: italic; color: var(--gold); }
+
+/* ── Progress bar (pure CSS via :has) ────────── */
+.progress-wrap {
+  width: calc(100% - 48px);
+  max-width: 420px;
+  margin: 0 auto 32px;
+}
+.progress-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 9px;
+}
+
+.prog-label::before { content: "Soru 1 / 4"; }
+.prog-pct::before   { content: "0%"; }
+
+body:has(#q2:target) .prog-label::before { content: "Soru 2 / 4"; }
+body:has(#q2:target) .prog-pct::before   { content: "25%"; }
+
+body:has(#q3:target) .prog-label::before { content: "Soru 3 / 4"; }
+body:has(#q3:target) .prog-pct::before   { content: "50%"; }
+
+body:has(#q4:target) .prog-label::before { content: "Soru 4 / 4"; }
+body:has(#q4:target) .prog-pct::before   { content: "75%"; }
+
+body:has(#result:target) .prog-label::before { content: "Tamamlandi"; }
+body:has(#result:target) .prog-pct::before   { content: "100%"; }
+
+.progress-bar {
+  height: 1px;
+  background: var(--border);
+  border-radius: 1px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-d), var(--gold));
+  width: 0%;
+  transition: width .55s cubic-bezier(.4,0,.2,1);
+}
+
+body:has(#q2:target) .progress-fill { width: 25%; }
+body:has(#q3:target) .progress-fill { width: 50%; }
+body:has(#q4:target) .progress-fill { width: 75%; }
+body:has(#result:target) .progress-fill { width: 100%; }
+
+/* ── Step visibility (:target) ───────────────── */
+.step { display: none; }
+#q1   { display: flex; }
+.step:target { display: flex; }
+
+body:has(#q2:target) #q1,
+body:has(#q3:target) #q1,
+body:has(#q4:target) #q1,
+body:has(#result:target) #q1 { display: none; }
+
+/* ── Step layout ─────────────────────────────── */
+.step {
+  flex-direction: column;
+  width: calc(100% - 48px);
+  max-width: 420px;
+  margin: 0 auto;
+  animation: fadeUp .42s ease both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.q-num {
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--gold);
+  opacity: .55;
+  margin-bottom: 10px;
+}
+.q-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(22px, 6vw, 30px);
+  font-weight: 300;
+  color: var(--white);
+  line-height: 1.25;
+  margin-bottom: 5px;
+}
+.q-sub {
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: .04em;
+  margin-bottom: 26px;
+}
+
+/* ── Radio options ───────────────────────────── */
+input[type="radio"] { display: none; }
+
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.options-grid.cols-1 {
+  grid-template-columns: 1fr;
+}
+
+label.opt {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 14px;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+}
+label.opt::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(201,168,76,.08), transparent 70%);
+  opacity: 0;
+  transition: opacity .25s;
+}
+label.opt:has(input:checked) {
+  border-color: var(--gold);
+  background: #211c14;
+}
+label.opt:has(input:checked)::before { opacity: 1; }
+
+.opt-icon {
+  font-size: 17px;
+  color: var(--gold);
+  opacity: .4;
+  transition: opacity .2s;
+  line-height: 1;
+}
+label.opt:has(input:checked) .opt-icon { opacity: 1; }
+
+.opt-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--white);
+  line-height: 1.2;
+}
+.opt-desc {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: .02em;
+  line-height: 1.45;
+}
+
+/* ── Next button (CSS activation) ───────────── */
+a.btn-next {
+  display: block;
+  margin-top: 22px;
+  padding: 15px;
+  text-align: center;
+  text-decoration: none;
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  color: var(--gold);
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  opacity: .25;
+  pointer-events: none;
+  transition: background .2s, color .2s, opacity .25s;
+}
+a.btn-next:hover { background: var(--gold); color: var(--bg); }
+
+/* Seçim yapılınca aktifleşir */
+#q1:has(input:checked) .btn-next,
+#q2:has(input:checked) .btn-next,
+#q3:has(input:checked) .btn-next,
+#q4:has(input:checked) .btn-next {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Result ──────────────────────────────────── */
+#result {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.result-badge {
+  font-size: 9px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: .55;
+  margin-bottom: 20px;
+}
+.result-icon {
+  width: 70px; height: 70px;
+  border-radius: 50%;
+  border: 1px solid var(--gold);
+  background: rgba(201,168,76,.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: var(--gold);
+  margin: 0 auto 22px;
+  animation: glow 3s ease-in-out infinite;
+}
+@keyframes glow {
+  0%,100% { box-shadow: 0 0 0 0 rgba(201,168,76,0); }
+  50%      { box-shadow: 0 0 20px 4px rgba(201,168,76,.15); }
+}
+#rName {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(24px, 8vw, 36px);
+  font-weight: 300;
+  color: var(--white);
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+#rTagline {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 15px;
+  color: var(--gold);
+  opacity: .75;
+  margin-bottom: 28px;
+}
+#rDesc {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 22px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #b8a898;
+  margin-bottom: 14px;
+  text-align: left;
+  width: 100%;
+}
+.result-meta {
+  background: #161310;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 22px;
+  margin-bottom: 28px;
+  width: 100%;
+  text-align: left;
+}
+.meta-row {
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.meta-row:first-child { padding-top: 0; }
+.meta-row:last-child  { border-bottom: none; padding-bottom: 0; }
+.meta-label {
+  font-size: 9px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: .5;
+}
+.meta-value { font-size: 13px; color: var(--text); line-height: 1.55; }
+
+button.btn-restart {
+  width: 100%;
+  padding: 15px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color .2s, color .2s;
+}
+button.btn-restart:hover { border-color: var(--muted); color: var(--text); }
+
+.top-line {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-d), transparent);
+  opacity: .35;
+}
+</style>
+</head>
+<body>
+
+<div class="top-line"></div>
+
+<header>
+  <div class="logo-mark">Pendant Finder</div>
+  <h1>Sana ozel<br><em>kolyeni</em> bul</h1>
+</header>
+
+<!-- Progress — CSS ile suruluyor, step disinda yasiyor -->
+<div class="progress-wrap">
+  <div class="progress-meta">
+    <span class="prog-label"></span>
+    <span class="prog-pct"></span>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill"></div>
+  </div>
+</div>
+
+
+<!-- ── Soru 1 ─────────────────────────────────── -->
+<section class="step" id="q1">
+  <div class="q-num">01</div>
+  <div class="q-text">Kararlarını ilk ne yönlendirir?</div>
+  <div class="q-sub">İlk içgüdünü seç</div>
+  <div class="options-grid cols-1">
+    <label class="opt">
+      <input type="radio" name="q1" value="mantik">
+      <div class="opt-icon">◇</div>
+      <div class="opt-label">Mantık</div>
+      <div class="opt-desc">Önce düşünür, sonra adım atarım</div>
+    </label>
+    <label class="opt">
+      <input type="radio" name="q1" value="duygular">
+      <div class="opt-icon">☽</div>
+      <div class="opt-label">Duygular</div>
+      <div class="opt-desc">Kalbim ne diyorsa onu dinlerim</div>
+    </label>
+  </div>
+  <a href="#q2" class="btn-next">Devam →</a>
+</section>
+
+
+<!-- ── Soru 2 ─────────────────────────────────── -->
+<section class="step" id="q2">
+  <div class="q-num">02</div>
+  <div class="q-text">Hayatta genelde…</div>
+  <div class="q-sub">En yakın hissettiren hangisi</div>
+  <div class="options-grid cols-1">
+    <label class="opt">
+      <input type="radio" name="q2" value="akis">
+      <div class="opt-icon">~</div>
+      <div class="opt-label">Akışına göre ilerlerim</div>
+      <div class="opt-desc">Zorlamam, gelenle uyum kurarım</div>
+    </label>
+    <label class="opt">
+      <input type="radio" name="q2" value="pesinden">
+      <div class="opt-icon">▲</div>
+      <div class="opt-label">İstediklerimin peşinden giderim</div>
+      <div class="opt-desc">Hedefim belli, yolumu kendim çizerim</div>
+    </label>
+    <label class="opt">
+      <input type="radio" name="q2" value="yolgosterici">
+      <div class="opt-icon">✦</div>
+      <div class="opt-label">Bir yol gösterici bulurum</div>
+      <div class="opt-desc">Anlam ve işaret ararım yolumda</div>
+    </label>
+  </div>
+  <a href="#q3" class="btn-next">Devam →</a>
+</section>
+
+
+<!-- ── Soru 3 ─────────────────────────────────── -->
+<section class="step" id="q3">
+  <div class="q-num">03</div>
+  <div class="q-text">Anılarımda en çok kalanlar…</div>
+  <div class="q-sub">Gözlerini kapat, düşün</div>
+  <div class="options-grid cols-1">
+    <label class="opt">
+      <input type="radio" name="q3" value="sessiz">
+      <div class="opt-icon">○</div>
+      <div class="opt-label">Sessiz bir an</div>
+      <div class="opt-desc">Sakin, derin, içe dönük bir his</div>
+    </label>
+    <label class="opt">
+      <input type="radio" name="q3" value="duygu">
+      <div class="opt-icon">♡</div>
+      <div class="opt-label">Bir duygu değişimi</div>
+      <div class="opt-desc">İçimde bir şeyin döndüğü o an</div>
+    </label>
+    <label class="opt">
+      <input type="radio" name="q3" value="sembol">
+      <div class="opt-icon">◈</div>
+      <div class="opt-label">Sembolik bir detay</div>
+      <div class="opt-desc">Küçük ama anlam yüklü bir ayrıntı</div>
+    </label>
+  </div>
+  <a href="#q4" class="btn-next">Devam →</a>
+</section>
+
+
+<!-- ── Soru 4 ─────────────────────────────────── -->
+<section class="step" id="q4">
+  <div class="q-num">04</div>
+  <div class="q-text">Bu madalyon hayatına ne katsın?</div>
+  <div class="q-sub">Sadece bir tane seçebilirsin</div>
+  <div class="options-grid">
+    <label class="opt">
+      <input type="radio" name="q4" value="huzur">
+      <div class="opt-icon">~</div>
+      <div class="opt-label">Huzur</div>
+      <div class="opt-desc">Sakinlik, denge, nefes</div>
+    </label>
+    <label class="opt">
+      <input type="radio" name="q4" value="guc">
+      <div class="opt-icon">▲</div>
+      <div class="opt-label">Güç</div>
+      <div class="opt-desc">Kararlılık, odak, cesaret</div>
+    </label>
+    <label class="opt">
+      <input type="radio" name="q4" value="ask">
+      <div class="opt-icon">♡</div>
+      <div class="opt-label">Aşk</div>
+      <div class="opt-desc">Bağ, sıcaklık, his</div>
+    </label>
+    <label class="opt">
+      <input type="radio" name="q4" value="sihir">
+      <div class="opt-icon">✦</div>
+      <div class="opt-label">Sihir</div>
+      <div class="opt-desc">Gizem, anlam, koruma</div>
+    </label>
+  </div>
+  <a href="#result" class="btn-next" onclick="showResult()">Sonucumu Gör ✦</a>
+</section>
+
+
+<!-- ── Sonuc ───────────────────────────────────── -->
+<section class="step" id="result">
+  <div class="result-badge">Senin icin ozel secim</div>
+  <div class="result-icon" id="rIcon"></div>
+  <div id="rName"></div>
+  <div id="rTagline"></div>
+  <div id="rDesc"></div>
+  <div class="result-meta">
+    <div class="meta-row">
+      <div class="meta-label">Malzeme secenekleri</div>
+      <div class="meta-value" id="rMaterials"></div>
+    </div>
+    <div class="meta-row">
+      <div class="meta-label">En cok kim icin</div>
+      <div class="meta-value" id="rFor"></div>
+    </div>
+  </div>
+  <button class="btn-restart" onclick="restart()">↺ &nbsp; Tekrar dene</button>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     KURAL VERISI — sadece buraya dokun
+     ══════════════════════════════════════ -->
+<script>
+const DATA = {
+  questions: [
+    {
+      id: "q1",
+      options: [
+        { id: "mantik",   scores: { ince_zincir: 3, geometrik: 4, tasli: 1, dogal_tas: 1, statement: 2 } },
+        { id: "duygular", scores: { ince_zincir: 1, geometrik: 0, tasli: 4, dogal_tas: 3, statement: 2 } }
+      ]
+    },
+    {
+      id: "q2",
+      options: [
+        { id: "akis",        scores: { ince_zincir: 3, geometrik: 1, tasli: 2, dogal_tas: 4, statement: 0 } },
+        { id: "pesinden",    scores: { ince_zincir: 1, geometrik: 3, tasli: 1, dogal_tas: 1, statement: 4 } },
+        { id: "yolgosterici",scores: { ince_zincir: 2, geometrik: 1, tasli: 3, dogal_tas: 3, statement: 1 } }
+      ]
+    },
+    {
+      id: "q3",
+      options: [
+        { id: "sessiz", scores: { ince_zincir: 4, geometrik: 2, tasli: 1, dogal_tas: 3, statement: 0 } },
+        { id: "duygu",  scores: { ince_zincir: 1, geometrik: 0, tasli: 4, dogal_tas: 2, statement: 3 } },
+        { id: "sembol", scores: { ince_zincir: 2, geometrik: 3, tasli: 3, dogal_tas: 2, statement: 2 } }
+      ]
+    },
+    {
+      id: "q4",
+      options: [
+        { id: "huzur", scores: { ince_zincir: 4, geometrik: 1, tasli: 2, dogal_tas: 3, statement: 0 } },
+        { id: "guc",   scores: { ince_zincir: 0, geometrik: 4, tasli: 1, dogal_tas: 1, statement: 4 } },
+        { id: "ask",   scores: { ince_zincir: 2, geometrik: 0, tasli: 4, dogal_tas: 2, statement: 2 } },
+        { id: "sihir", scores: { ince_zincir: 1, geometrik: 2, tasli: 3, dogal_tas: 4, statement: 2 } }
+      ]
+    }
+  ],
+
+  results: {
+    ince_zincir: {
+      icon: "◇",
+      name: "Ince Zincir Kolye",
+      tagline: "Sadelikte kusursuzluk",
+      description: "Fark edilmeden buyleyen turden. Varligiyla hissettiren, yokluguyla ozlettiren bir kolye. Her kiyafetle uyum saglar, her anin sessiz tamamlayicisidir.",
+      materials: ["14K Altin", "925 Gumus", "Rose Gold Kaplama"],
+      perfect_for: "Minimalist ruhlar, katmanli taki sevenler, gunluk siklik arayanlar"
+    },
+    geometrik: {
+      icon: "◈",
+      name: "Geometrik Pendant",
+      tagline: "Formun gucu",
+      description: "Keskin hatlar, net formlar. Tasarimin kendisi bir ifade. Soz solylemeden durusunla konusmak isteyenler icin bicilmis kaftan.",
+      materials: ["Sterling Gumus", "Altin Kaplama", "Mat Finish"],
+      perfect_for: "Modern estetik sevenler, mimarlar, tasarimcilar, sanat tutkunlari"
+    },
+    tasli: {
+      icon: "✦",
+      name: "Tasli Pendant",
+      tagline: "Isigi yakalayan guzellik",
+      description: "Her bakis acisinda farkli bir isik, farkli bir his. Tas sadece bir sus degil — tasidigin bir hikaye, hissettirdigin bir enerji.",
+      materials: ["Dogal Kuvars", "Labradorit", "Ametist", "Sitrin"],
+      perfect_for: "Ozel gunler, romantik ruhlar, anlam arayanlar"
+    },
+    dogal_tas: {
+      icon: "☽",
+      name: "Dogal Tas Kolye",
+      tagline: "Dunyadan gelen guc",
+      description: "Ham guzellik, islenmemis enerji. Topraktan koparilmis, sana ozel sekillendirilmis. Bohem ruhu icin dunyayla bir bag.",
+      materials: ["Ham Kristal", "Turkuaz", "Obsidyen", "Ay Tasi"],
+      perfect_for: "Bohem ruhlar, doga sevenler, enerji ve kristal meraklilar"
+    },
+    statement: {
+      icon: "◉",
+      name: "Statement Kolye",
+      tagline: "Soz gerek yok",
+      description: "Odaya girerken onceden haber veren turden. Boyutlu, cesur, akilda kalici. Sessiz kalmak istemeyenler icin tasarlandi.",
+      materials: ["Baglamali Metal", "Buyuk Tas", "Cok Katmanli"],
+      perfect_for: "Cesur ruhlar, gece etkinlikleri, sosyal kelebekler, tarz sahipleri"
+    }
+  }
+};
+
+/* ── Sadece bu kadar JS ── */
+function showResult() {
+  const scores = Object.fromEntries(Object.keys(DATA.results).map(k => [k, 0]));
+
+  DATA.questions.forEach(q => {
+    const checked = document.querySelector(`input[name="${q.id}"]:checked`);
+    if (!checked) return;
+    const opt = q.options.find(o => o.id === checked.value);
+    if (opt) Object.entries(opt.scores).forEach(([k, v]) => scores[k] += v);
+  });
+
+  const winner = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+  const r = DATA.results[winner];
+
+  document.getElementById('rIcon').textContent      = r.icon;
+  document.getElementById('rName').textContent      = r.name;
+  document.getElementById('rTagline').textContent   = r.tagline;
+  document.getElementById('rDesc').textContent      = r.description;
+  document.getElementById('rMaterials').textContent = r.materials.join(' · ');
+  document.getElementById('rFor').textContent       = r.perfect_for;
+}
+
+function restart() {
+  document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+  location.hash = '#q1';
+}
+</script>
+
+</body>
+</html>
