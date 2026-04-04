@@ -519,6 +519,7 @@ button.btn-restart:hover { border-color: var(--muted); color: var(--text); }
       <div class="meta-value" id="rFor"></div>
     </div>
   </div>
+  <button class="btn-restart" onclick="goto()">; Ziyaret Et</button>
   <button class="btn-restart" onclick="restart()">↺ &nbsp; Tekrar dene</button>
 </section>
 
@@ -578,7 +579,7 @@ const DATA = {
       tagline: "Formun gucu",
       description: "Keskin hatlar, net formlar. Tasarimin kendisi bir ifade. Soz solylemeden durusunla konusmak isteyenler icin bicilmis kaftan.",
       materials: ["Sterling Gumus", "Altin Kaplama", "Mat Finish"],
-      perfect_for: "Modern estetik sevenler, mimarlar, tasarimcilar, sanat tutkunlari. https://elementyn.com/collections/frontpage"
+      perfect_for: "Modern estetik sevenler, mimarlar, tasarimcilar, sanat tutkunlari."
     },
     tasli: {
       icon: "✦",
@@ -586,7 +587,7 @@ const DATA = {
       tagline: "Isigi yakalayan guzellik",
       description: "Her bakis acisinda farkli bir isik, farkli bir his. Tas sadece bir sus degil — tasidigin bir hikaye, hissettirdigin bir enerji.",
       materials: ["Dogal Kuvars", "Labradorit", "Ametist", "Sitrin"],
-      perfect_for: "Ozel gunler, romantik ruhlar, anlam arayanlar. https://elementyn.com/collections/frontpage"
+      perfect_for: "Ozel gunler, romantik ruhlar, anlam arayanlar."
     },
     dogal_tas: {
       icon: "☽",
@@ -594,7 +595,7 @@ const DATA = {
       tagline: "Dunyadan gelen guc",
       description: "Ham guzellik, islenmemis enerji. Topraktan koparilmis, sana ozel sekillendirilmis. Bohem ruhu icin dunyayla bir bag.",
       materials: ["Ham Kristal", "Turkuaz", "Obsidyen", "Ay Tasi"],
-      perfect_for: "Bohem ruhlar, doga sevenler, enerji ve kristal meraklilar. https://elementyn.com/collections/frontpage"
+      perfect_for: "Bohem ruhlar, doga sevenler, enerji ve kristal meraklilar."
     },
     statement: {
       icon: "◉",
@@ -602,7 +603,7 @@ const DATA = {
       tagline: "Soz gerek yok",
       description: "Odaya girerken onceden haber veren turden. Boyutlu, cesur, akilda kalici. Sessiz kalmak istemeyenler icin tasarlandi.",
       materials: ["Baglamali Metal", "Buyuk Tas", "Cok Katmanli"],
-      perfect_for: "Cesur ruhlar, gece etkinlikleri, sosyal kelebekler, tarz sahipleri. https://elementyn.com/collections/frontpage"
+      perfect_for: "Cesur ruhlar, gece etkinlikleri, sosyal kelebekler, tarz sahipleri."
     }
   }
 };
@@ -629,6 +630,9 @@ function showResult() {
   document.getElementById('rFor').textContent       = r.perfect_for;
 }
 
+function goto() {
+  window.location.href = "https://elementyn.com/collections/frontpage";
+}
 function restart() {
   document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
   location.hash = '#q1';
