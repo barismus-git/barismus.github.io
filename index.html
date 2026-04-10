@@ -51,11 +51,11 @@ header::after {
 }
 .logo-mark {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 10px;
-  letter-spacing: 6px;
+  font-size: 18px; /* Büyütüldü */
+  letter-spacing: 8px; /* Boşluk artırıldı */
   text-transform: uppercase;
   color: var(--gold);
-  opacity: .65;
+  opacity: .85;
   margin-bottom: 14px;
 }
 h1 {
@@ -135,6 +135,12 @@ label.opt:has(input:checked) .opt-icon { opacity: 1; }
 .opt-label { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 400; color: var(--white); line-height: 1.2; }
 .opt-desc { font-size: 11px; color: var(--muted); letter-spacing: .02em; line-height: 1.45; }
 
+/* ── Dependency Logic ─────────────────── */
+/* Eğer Q1'de "Feelings" (duygular) seçilmişse, Q2'deki rehber opsiyonunu gizle */
+body:has(input[name="q1"][value="duygular"]:checked) #opt-guide {
+    display: none;
+}
+
 /* ── Buttons ───────────────────── */
 a.btn-next {
   display: block; margin-top: 22px; padding: 15px; text-align: center; text-decoration: none;
@@ -192,7 +198,7 @@ button.btn-action {
   <div class="q-sub">Choose your first instinct</div>
   <div class="options-grid cols-1">
     <label class="opt"><input type="radio" name="q1" value="mantik"><div class="opt-icon">◇</div><div class="opt-label">Logic</div><div class="opt-desc">I think deeply before taking a step</div></label>
-    <label class="opt"><input type="radio" name="q1" value="duygular"><div class="opt-icon">☽</div><div class="opt-label">Emotions</div><div class="opt-desc">I listen to what my heart says</div></label>
+    <label class="opt"><input type="radio" name="q1" value="duygular"><div class="opt-icon">☽</div><div class="opt-label">Feelings</div><div class="opt-desc">I listen to what my heart says</div></label>
   </div>
   <a href="#q2" class="btn-next">Continue →</a>
 </section>
@@ -204,7 +210,7 @@ button.btn-action {
   <div class="options-grid cols-1">
     <label class="opt"><input type="radio" name="q2" value="akis"><div class="opt-icon">~</div><div class="opt-label">Go with the flow</div><div class="opt-desc">I don't force things, I harmonize with what comes</div></label>
     <label class="opt"><input type="radio" name="q2" value="pesinden"><div class="opt-icon">▲</div><div class="opt-label">Chase your desires</div><div class="opt-desc">My goal is clear, I carve my own path</div></label>
-    <label class="opt"><input type="radio" name="q2" value="yolgosterici"><div class="opt-icon">✦</div><div class="opt-label">Look for a guide</div><div class="opt-desc">I seek meaning and signs on my journey</div></label>
+    <label class="opt" id="opt-guide"><input type="radio" name="q2" value="yolgosterici"><div class="opt-icon">✦</div><div class="opt-label">Look for a guide</div><div class="opt-desc">I seek meaning and signs on my journey</div></label>
   </div>
   <a href="#q3" class="btn-next">Continue →</a>
 </section>
@@ -237,14 +243,13 @@ button.btn-action {
 <section class="step" id="result">
   <div class="result-icon">✦</div>
   <div id="rName">Necklace Name</div>
-  <div id="rDesc">This piece has been carefully chosen to reflect your inner journey and intentions. It serves as a wearable reminder of the path you walk and the magic you carry within.</div>
+  <div id="rDesc"></div>
   
   <button class="btn-action btn-primary" onclick="visitProduct()">Discover the Piece</button>
   <button class="btn-action btn-secondary" onclick="restart()">↺ &nbsp; Try again</button>
 </section>
 
 <script>
-// --- Mapping from CSV Data ---
 const MAPPING = {
   "mantik-akis-sessiz-huzur": { "name": "Tide of Peace", "url": "https://elementyn.com/products/tide-of-peace" },
   "mantik-akis-sessiz-guc": { "name": "Force of Calm", "url": "https://elementyn.com/products/force-of-calm" },
@@ -322,9 +327,9 @@ function showResult() {
   if (result) {
     document.getElementById('rName').textContent = result.name;
     currentResultUrl = result.url;
-    document.getElementById('rDesc').textContent = "This piece has been carefully chosen to reflect your inner journey and intentions. It serves as a wearable reminder of the path you walk and the magic you carry within.";
+    // Güncellenen Metin:
+    document.getElementById('rDesc').textContent = "This piece has been carefully chosen to reflect your inner journey and intentions. It serves as a wearable reminder of your inner form and journey.";
   } else {
-    // Fallback if combination is not in CSV
     document.getElementById('rName').textContent = "Discover Our Collection";
     document.getElementById('rDesc').textContent = "We couldn't find a single specific match for this exact combination, but we have a whole collection waiting for you to explore.";
     currentResultUrl = "https://elementyn.com/collections/frontpage";
